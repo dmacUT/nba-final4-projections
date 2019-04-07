@@ -6,7 +6,8 @@ from team_targets import *
 from defvotes import *
 
 def get_clean_pdata():
-    allplayers = pd.read_csv('data/adv_pstats_06-18.csv')
+    #allplayers = pd.read_csv('data/adv_pstats_06-18.csv')
+    allplayers = pd.read_csv('data/adv_pstats_05-19.csv')
 
     allplayers = allplayers[allplayers.Tm != 'TOT']
 
@@ -97,23 +98,27 @@ def get_2yr_mean(df):
        'sUSG%_y', 'sOWS_y', 'sDWS_y', 'sWS_y', 'sWS/48_y', 'sOBPM_y', 'sDBPM_y', 'sBPM_y', 'sVORP_y', 'sMPG_y',
        'sadvotes_y','O_cluster_y', 'D_cluster_y', 'D_clust_y', 'O_clust_y']
 
-    yr_seven_df = df[df.YR_x == 7][['Player','G_x', 'Pos_x', 'Age_x','TM_x','YR_x','MP_x', 'AgeMulti_x']]
+    #yr_seven_df = df[df.YR_x == 7][['Player','G_x', 'Pos_x', 'Age_x','TM_x','YR_x','MP_x', 'AgeMulti_x']]
+    yr_six_df = df[df.YR_x == 6][['Player','G_x', 'Pos_x', 'Age_x','TM_x','YR_x','MP_x', 'AgeMulti_x']]
 
     for pos in ['PF', 'PG', 'SF', 'SG', 'C']:
         for i in range(len(col_means)):
             ap_2yr_mean[pos + str(col_means[i]) + "mn"] = (((df[df['Pos_x'] == pos][col_means[i]]*.8) + (df[df['Pos_x'] == pos][cols[i]]*1.2)) /2) * df['AgeMulti_x']
-            yr_seven_df[pos + str(col_means[i]) + "mn"] = df[df['Pos_x'] == pos][cols[i]] * df['AgeMulti_x']
+            #yr_seven_df[pos + str(col_means[i]) + "mn"] = df[df['Pos_x'] == pos][cols[i]] * df['AgeMulti_x']
+            yr_six_df[pos + str(col_means[i]) + "mn"] = df[df['Pos_x'] == pos][cols[i]] * df['AgeMulti_x']
         
     ap_2yr_mean['MPGmean'] = (df['sMPG_y'] + df['sMPG'])/2
-    yr_seven_df['MPGmean'] = df['sMPG_y'] 
+    #yr_seven_df['MPGmean'] = df['sMPG_y'] 
+    yr_six_df['MPGmean'] = df['sMPG_y'] 
     
-    ap = ap_2yr_mean[ap_2yr_mean['YR_x'] > 7]
-    add7 = ap.append(yr_seven_df)
+    ap = ap_2yr_mean[ap_2yr_mean['YR_x'] > 6]
+    #add7 = ap.append(yr_seven_df)
+    add6 = ap.append(yr_six_df)
 
             #new_cols.append(pos + str(col_means[i]) + "mn")
  
-    return add7
-
+    #return add7
+    return add6
 
 #combine main player data with d_votes table
 pdata = get_clean_pdata()
@@ -257,7 +262,7 @@ team_df = pd.merge(tm12, team_target, how='left', left_on='TM_x', right_on="TM_x
 team_df_fill0 =team_df.fillna(0)
 
 #drop year 6, since it is beginning of data and has no prior data
-team_df_fin = team_df_fill0[team_df_fill0.YR_x !=6]
+team_df_fin = team_df_fill0[team_df_fill0.YR_x !=5]
 
 #drop NaNs
 team_fin = team_df_fin.dropna().reset_index()
