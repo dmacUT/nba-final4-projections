@@ -10,6 +10,7 @@ def get_clean_pdata():
     allplayers = pd.read_csv('data/adv_pstats_05-19.csv')
 
     allplayers = allplayers[allplayers.Tm != 'TOT']
+    allplayers = allplayers.drop_duplicates(subset=['Player','YR'], keep='first')
 
     allplayers.drop(['Unnamed: 19', 'Unnamed: 24'], axis=1, inplace=True)
 
@@ -63,9 +64,7 @@ def get_clean_pdata():
 
     ap_10['MPG'] = ap_10['MP'] / ap_10['G']
 
-    new = ap_10.sort_values('G', ascending=False).drop_duplicates(subset=['Player', 'YR'], keep='first')
-
-    return new
+    return ap_10
 
 defvotes = get_defvotes()
 
@@ -128,13 +127,15 @@ pdata = add_defvotes(pdata, defvotes)
 pdata['AgeMulti'] = 1
 pdata.loc[pdata['Age'] > 31,'AgeMulti'] = .95
 pdata.loc[pdata['Age'] > 34,'AgeMulti'] = .9
-pdata.loc[pdata['Age'] < 24, 'AgeMulti'] = 1.2
-pdata.loc[pdata['Age'] < 21, 'AgeMulti'] = 1.33
+pdata.loc[pdata['Age'] < 27, 'AgeMulti'] = 1
+pdata.loc[pdata['Age'] < 25, 'AgeMulti'] = 1.025
+pdata.loc[pdata['Age'] < 22, 'AgeMulti'] = 1.05
 
 #drop nans and players who played less than 11 games
 #p_wage = pdata.dropna()
-#p_wage = p_wage[p_wage['G'] > 11]
 p_wage = pdata
+p_wage = p_wage[p_wage['G'] > 16]
+
 
 #Create a list of columns to normalize
 cols = ['MP', 'PER', 'TS%', '3PAr', 'FTr', 'ORB%',
@@ -170,8 +171,8 @@ dfs = dfs.append(dfscaledlist[3])
 dfs = dfs.append(dfscaledlist[4])
 
 #Make offensive and defensive clusters
-Xo = dfs[['sPER', 's3PAr','sORB%', 'sAST%', 'sUSG%', 'sOWS','sOBPM', 'sVORP', 'sMPG']]
-Xd = dfs[['sDRB%', 'sSTL%', 'sBLK%', 'sDWS', 'sDBPM', 'sVORP','sMPG', 'sadvotes']]
+Xo = dfs[['sPER', 's3PAr', 'sAST%', 'sUSG%', 'sOWS','sOBPM', 'sVORP',]]
+Xd = dfs[['sDRB%', 'sSTL%', 'sBLK%', 'sDWS', 'sDBPM', 'sVORP', 'sadvotes']]
 
 #Create Kmeans models for offense and defense
 kmeansO = KMeans(n_clusters=20, random_state=7).fit(Xo)
@@ -186,10 +187,10 @@ dfs['O_cluster'] = labsO
 dfs['D_cluster'] = labsD
 
 #Create list of defensive indices
-dind = list(dfs.groupby('D_cluster').mean().sort_values('DBPM', ascending=False).reset_index()['D_cluster'].values)
+dind = list(dfs.groupby('D_cluster').mean().sort_values('DWS', ascending=False).reset_index()['D_cluster'].values)
 
 #Create list of offensive indices
-oind = list(dfs.groupby('O_cluster').mean().sort_values('OBPM', ascending=False).reset_index()['O_cluster'].values)
+oind = list(dfs.groupby('O_cluster').mean().sort_values('OWS', ascending=False).reset_index()['O_cluster'].values)
 
 #Reassign values to numerical values from greatest to least based on highest mean win shares
 count = 9
@@ -208,7 +209,7 @@ p_sca = dfs
 
 #Scale cluster values back to roughly 0-10 (float) scale
 p_sca['O_clust'] = (p_sca['O_clust']**1.5)/6
-p_sca['D_clust'] = (p_sca['D_clust']**1.5)/3
+p_sca['D_clust'] = (p_sca['D_clust']**1.5)/2.125
 
 #Setup player data df to add the prior 2 years of the players' stats
 p2yr = p_sca[['Player','Age','Pos','G','MP','TM','YR','YRprior','2YRprior','AgeMulti', 'sPER', 'sTS%', 's3PAr', 'sFTr', 'sORB%',
@@ -237,7 +238,7 @@ for i in range(len(lastyr)):
 
 #fillna of 2 years ago
 for i in range(len(twoyrsago)):
-    p3[twoyrsago[i]] = p3[twoyrsago[i]].fillna(value=(p3[twoyrsago[i]]))
+    p3[twoyrsago[i]] = p3[twoyrsago[i]].fillna(value=(p3[lastyr[i]]))
 
 #Get mean of last 2 years, and assign it to current year
 p2mean = get_2yr_mean(p3)
@@ -246,20 +247,155 @@ p2mean = get_2yr_mean(p3)
 p3m = p2mean.dropna(subset=['TM_x'])
 
 #Fill NaNs with that position/team data so that it aggregates correctly
-p4m = p3m.fillna(p3m.groupby('TM_x').transform('mean'))
+p4m = p3m.fillna(p3m.groupby('TM_x').transform('min'))
 
 #Aggregate players' data into team data by players who played an average of most min. over last 2 years
 
-p2m12 = p4m.sort_values('MPGmean', ascending=False).groupby('TM_x').head(12)
-p12 = p2m12.fillna(p2m12.groupby('TM_x').quantile(.3))
-tm12 = p12.groupby('TM_x').mean().reset_index()
+p2m12 = p4m.sort_values('MPGmean', ascending=False).groupby('TM_x').head(10)
+stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
+ 'AgeMulti_x',
+ 'PFsPERmn',
+ 'PFsTS%mn',
+ 'PFs3PArmn',
+ 'PFsFTrmn',
+ 'PFsORB%mn',
+ 'PFsDRB%mn',
+ 'PFsTRB%mn',
+ 'PFsAST%mn',
+ 'PFsSTL%mn',
+ 'PFsBLK%mn',
+ 'PFsTOV%mn',
+ 'PFsUSG%mn',
+ 'PFsOWSmn',
+ 'PFsDWSmn',
+ 'PFsWSmn',
+ 'PFsWS/48mn',
+ 'PFsOBPMmn',
+ 'PFsDBPMmn',
+ 'PFsBPMmn',
+ 'PFsVORPmn',
+ 'PFsMPGmn',
+ 'PFsadvotesmn',
+ 'PFO_clustermn',
+ 'PFD_clustermn',
+ 'PFD_clustmn',
+ 'PFO_clustmn',
+ 'PGsPERmn',
+ 'PGsTS%mn',
+ 'PGs3PArmn',
+ 'PGsFTrmn',
+ 'PGsORB%mn',
+ 'PGsDRB%mn',
+ 'PGsTRB%mn',
+ 'PGsAST%mn',
+ 'PGsSTL%mn',
+ 'PGsBLK%mn',
+ 'PGsTOV%mn',
+ 'PGsUSG%mn',
+ 'PGsOWSmn',
+ 'PGsDWSmn',
+ 'PGsWSmn',
+ 'PGsWS/48mn',
+ 'PGsOBPMmn',
+ 'PGsDBPMmn',
+ 'PGsBPMmn',
+ 'PGsVORPmn',
+ 'PGsMPGmn',
+ 'PGsadvotesmn',
+ 'PGO_clustermn',
+ 'PGD_clustermn',
+ 'PGD_clustmn',
+ 'PGO_clustmn',
+ 'SFsPERmn',
+ 'SFsTS%mn',
+ 'SFs3PArmn',
+ 'SFsFTrmn',
+ 'SFsORB%mn',
+ 'SFsDRB%mn',
+ 'SFsTRB%mn',
+ 'SFsAST%mn',
+ 'SFsSTL%mn',
+ 'SFsBLK%mn',
+ 'SFsTOV%mn',
+ 'SFsUSG%mn',
+ 'SFsOWSmn',
+ 'SFsDWSmn',
+ 'SFsWSmn',
+ 'SFsWS/48mn',
+ 'SFsOBPMmn',
+ 'SFsDBPMmn',
+ 'SFsBPMmn',
+ 'SFsVORPmn',
+ 'SFsMPGmn',
+ 'SFsadvotesmn',
+ 'SFO_clustermn',
+ 'SFD_clustermn',
+ 'SFD_clustmn',
+ 'SFO_clustmn',
+ 'SGsPERmn',
+ 'SGsTS%mn',
+ 'SGs3PArmn',
+ 'SGsFTrmn',
+ 'SGsORB%mn',
+ 'SGsDRB%mn',
+ 'SGsTRB%mn',
+ 'SGsAST%mn',
+ 'SGsSTL%mn',
+ 'SGsBLK%mn',
+ 'SGsTOV%mn',
+ 'SGsUSG%mn',
+ 'SGsOWSmn',
+ 'SGsDWSmn',
+ 'SGsWSmn',
+ 'SGsWS/48mn',
+ 'SGsOBPMmn',
+ 'SGsDBPMmn',
+ 'SGsBPMmn',
+ 'SGsVORPmn',
+ 'SGsMPGmn',
+ 'SGsadvotesmn',
+ 'SGO_clustermn',
+ 'SGD_clustermn',
+ 'SGD_clustmn',
+ 'SGO_clustmn',
+ 'CsPERmn',
+ 'CsTS%mn',
+ 'Cs3PArmn',
+ 'CsFTrmn',
+ 'CsORB%mn',
+ 'CsDRB%mn',
+ 'CsTRB%mn',
+ 'CsAST%mn',
+ 'CsSTL%mn',
+ 'CsBLK%mn',
+ 'CsTOV%mn',
+ 'CsUSG%mn',
+ 'CsOWSmn',
+ 'CsDWSmn',
+ 'CsWSmn',
+ 'CsWS/48mn',
+ 'CsOBPMmn',
+ 'CsDBPMmn',
+ 'CsBPMmn',
+ 'CsVORPmn',
+ 'CsMPGmn',
+ 'Csadvotesmn',
+ 'CO_clustermn',
+ 'CD_clustermn',
+ 'CD_clustmn',
+ 'CO_clustmn',
+ 'MPGmean',]].quantile(.75)
+fin_stats = stats75.groupby('TM_x',).max().reset_index()
+p12 = p2m12.groupby('TM_x').mean().reset_index()
+p12fill = p12.fillna(p12.groupby('TM_x').quantile(.2))
+tm12 = pd.merge(p12fill[['TM_x','G_x', 'Age_x', 'YR_x',]], fin_stats, how="outer", on="TM_x")
 
 #Get target of teams making top 4 of conference
 team_target = get_team_target()
 
 #Merge aggregated players (not in teams) with targets to lineup training with y
 team_df = pd.merge(tm12, team_target, how='left', left_on='TM_x', right_on="TM_x")
-team_df_fill0 =team_df.fillna(0)
+team_df_fill0 = team_df.fillna(team_df.quantile(.2))
 
 #drop year 6, since it is beginning of data and has no prior data
 team_df_fin = team_df_fill0[team_df_fill0.YR_x !=5]
@@ -267,8 +403,7 @@ team_df_fin = team_df_fill0[team_df_fill0.YR_x !=5]
 #drop NaNs
 team_fin = team_df_fin.dropna().reset_index()
 
-#Make a list of the team_fin columns to be able to bootstrap training data
-team_cols = list(team_fin.columns.values)
-team_cols.pop(1)
+#Create csv of final team data
+team_fin.to_csv('data/5_19_aggdataWS.csv', index=False)
 
 print('done loading')

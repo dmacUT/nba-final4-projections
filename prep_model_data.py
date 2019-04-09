@@ -1,6 +1,24 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
+import matplotlib.pyplot as plt 
 import random
+import pickle
+
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.metrics import roc_auc_score, roc_curve
+from sklearn.metrics import confusion_matrix, accuracy_score, mean_squared_error, r2_score, f1_score
+
+from statsmodels.discrete.discrete_model import Logit
+from statsmodels.tools import add_constant
+
+team_fin = pd.read_csv('data/5_19_aggdataWS.csv')
+
+#Make a list of the team_fin columns to be able to bootstrap training data
+team_cols = list(team_fin.columns.values)
+team_cols.pop(1)
+
+
 
 def bootstrap(arr, iterations=10):
     """Create a series of bootstrapped samples of an input array.
@@ -25,7 +43,7 @@ def bootstrap(arr, iterations=10):
         # [:, np.newaxis] increases the dimension of arr from 1 to 2
 
     nrows = arr.shape[0]
-    boot_samples = []
+    #boot_samples = []
     df_list = []
     
     for _ in range(iterations):
@@ -45,17 +63,237 @@ def bootstrap(arr, iterations=10):
 
     return df_merged
 
-def split_1(df, test_size=.3):
-    '''
-    parameters: dataframe to split
-    returns: 
-    '''
+def split_time(df, yr_cut = 14):
     #randlist has a random index for % length of index
-    test_randlist = random.sample(range(len(df.index.values)), int((len(df.index.values)*test_size)))
-    final_test_df = df.iloc[test_randlist]
+    #last3yrs = df.sort_values('YR_x', ascending = False).reset_index()
+    #final_test_df = last3yrs.iloc[:(int(len(df) * test_size))]
+    final_test_df = df.loc[df['YR_x'] > yr_cut]
     final_test_X = final_test_df.drop('HomeCourt_x', axis=1)
-    final_test_y = final_test_df['HomeCourt_x']
-    train_list = [i for i in list(df.index.values) if i not in test_randlist]
-    print(np.min(train_list), np.max(train_list))
-    first_train_df = df.iloc[train_list]
+    final_test_y = final_test_df[['TM_x','YR_x','HomeCourt_x']]
+    first_train_df = df.loc[df['YR_x'] <= yr_cut]
     return first_train_df, final_test_X, final_test_y
+
+time_train, final_test_X, final_test_y = split_time(team_fin)
+
+tt_shrunk = time_train[['YR_x', 'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
+'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
+ 'HomeCourt_y', 'HomeCourt_x',
+ 'PFD_clustmn',	'PFO_clustmn',
+ 'PGD_clustmn',	'PGO_clustmn',
+ 'SFD_clustmn',	'SFO_clustmn',
+ 'CD_clustmn',	'CO_clustmn',
+ 'SGD_clustmn',	'SGO_clustmn',
+ ]]
+
+
+#Create bootstrapped sample of TIME main_training data set
+tt_boot = bootstrap(tt_shrunk, iterations=15)
+
+tt_X = tt_boot[[
+'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
+'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
+#  'HomeCourt_y',
+#  'PFD_clustmn',	'PFO_clustmn',
+#  'PGD_clustmn',	'PGO_clustmn',
+#  'SFD_clustmn',	'SFO_clustmn',
+#  'CD_clustmn',	'CO_clustmn',
+#  'SGD_clustmn',	'SGO_clustmn'
+ ]]
+tt_y = tt_boot['HomeCourt_x']
+
+tt_Xtest = final_test_X[final_test_X.YR_x < 17][[
+    'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
+'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
+#  'HomeCourt_y',
+#  'PFD_clustmn',	'PFO_clustmn',
+#  'PGD_clustmn',	'PGO_clustmn',
+#  'SFD_clustmn',	'SFO_clustmn',
+#  'CD_clustmn',	'CO_clustmn',
+#  'SGD_clustmn',	'SGO_clustmn'
+ ]]
+tt_ytest = final_test_y[final_test_y.YR_x < 17]['HomeCourt_x']
+
+final_X = final_test_X[final_test_X.YR_x > 16][[
+    'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
+'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
+#  'HomeCourt_y',
+#  'PFD_clustmn',	'PFO_clustmn',
+#  'PGD_clustmn',	'PGO_clustmn',
+#  'SFD_clustmn',	'SFO_clustmn',
+#  'CD_clustmn',	'CO_clustmn',
+#  'SGD_clustmn',	'SGO_clustmn'
+ ]]
+final_y = final_test_y[final_test_y.YR_x > 16]['HomeCourt_x']
+
+final_tms = final_test_y[final_test_y.YR_x > 16]['TM_x']
+
+#Create data for dumb model
+tt_XD = tt_boot[['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn']]
+tt_yD = tt_boot['HomeCourt_x']
+
+tt_XtestD = final_test_X[final_test_X.YR_x < 17][['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn', ]]
+tt_ytestD = final_test_y[final_test_y.YR_x < 17]['HomeCourt_x']
+
+final_XD = final_test_X[final_test_X.YR_x > 16][['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn',]]
+final_yD = final_test_y[final_test_y.YR_x > 16]['HomeCourt_x']
+
+final_tms = final_test_y[final_test_y.YR_x > 16]['TM_x']
+
+def run_rf_model(Xtr,ytr,Xte,yte, n_est = 500, thresh=0.5):
+    rf2 = RandomForestClassifier(bootstrap=True, n_estimators=n_est,
+                           max_features='auto',
+                           random_state=random.randint(0,1000), n_jobs=1)
+    rf2.fit(Xtr, ytr)
+
+    #F1 score
+    pred_rf = rf2.predict(Xte)
+    print('F1 score: {:.3}'.format(f1_score(yte, pred_rf)))
+
+    #Roc_Auc score
+    print('ROC AUC Score is: {:.3}'.format(roc_auc_score(yte, rf2.predict_proba(Xte).T[1] )))
+
+    rf_probs = rf2.predict_proba(Xte).T[1]
+
+    pp = rf_probs > thresh
+    pp = pp.astype(int)
+
+    tnr, fpr, fnr, tpr = confusion_matrix(yte, pp).ravel()
+
+    print('Pred True ', tpr, fpr)
+    print('Pred False ', fnr, tnr)
+
+    fpr, tpr, thresholds = roc_curve(yte, rf_probs)
+    plt.figure(figsize=(5,5))
+    plt.plot( fpr, tpr )#, c=thresholds/thresholds.max(), cmap="viridis" )
+    plt.plot( [0,1],[0,1], "--" )
+    plt.title( "ROC Curve" )
+    plt.xlabel("False positive rate")
+    plt.ylabel("True positive rate")
+
+    rf_model1 = 'rf_model2.sav'
+    pickle.dump(rf2, open(rf_model1, 'wb'))
+    
+
+def get_model(model_name):
+    loaded_model = pickle.load(open(model_name, 'rb'))
+    return loaded_model
+    
+
+def run_gb_model(Xtr,ytr,Xte,yte, lr = 0.1, thresh=0.5):
+    gmodel = GradientBoostingClassifier(learning_rate=lr, random_state=random.randint(0,1000))
+    gmodel.fit(Xtr, ytr)
+
+    #F1 score
+    pred_gb = gmodel.predict(Xte)
+    print('F1 score: {:.3}'.format(f1_score(yte, pred_gb)))
+
+    #Roc_Auc score
+    print('ROC AUC Score is: {:.3}'.format(roc_auc_score(yte, gmodel.predict_proba(Xte).T[1] )))
+
+    gb_probs = gmodel.predict_proba(Xte).T[1]
+
+    gg = gb_probs > thresh
+    gg = gg.astype(int)
+
+    tnr, fpr, fnr, tpr = confusion_matrix(yte, gg).ravel()
+
+    print('Pred True ', tpr, fpr)
+    print('Pred False ', fnr, tnr)
+
+    fpr, tpr, thresholds = roc_curve(yte, gb_probs)
+    plt.figure(figsize=(5,5))
+    plt.plot( fpr, tpr )#, c=thresholds/thresholds.max(), cmap="viridis" )
+    plt.plot( [0,1],[0,1], "--" )
+    plt.title( "ROC Curve" )
+    plt.xlabel("False positive rate")
+    plt.ylabel("True positive rate")
+
+    gb_model1 = 'gb_model2.sav'
+    pickle.dump(gmodel, open(gb_model1, 'wb'))
+
+def run_log_reg(Xtr,ytr,Xte,yte):
+    #Testing out Logistic Regression
+    Xl = Xtr
+    X_constl = add_constant(Xl, prepend=True)
+    yl = ytr
+    log = Logit(yl, X_constl).fit()
+    Xte_constl = add_constant(Xte, prepend=True)
+
+    pred_lg = log.predict(exog=Xte_constl)
+
+    mask = pred_lg > .5
+    maskint = mask.astype(int)
+    print('F1 score: {:.3}'.format(f1_score(yte, maskint)))
+
+    #Roc_Auc score
+    print('ROC AUC Score is: {:.3}'.format(roc_auc_score(yte, maskint )))
+
+    tnr, fpr, fnr, tpr = confusion_matrix(yte, maskint).ravel()
+    print('Pred True ', tpr, fpr)
+    print('Pred False ', fnr, tnr)
+
+    print(log.summary())
+
+    base = 'base_model.sav'
+    pickle.dump(log, open(base, 'wb'))
+
+gb = get_model('gb_model2.sav')
+base = get_model('base_model.sav')
+
+finX = final_XD
+finX_const = add_constant(finX, prepend=True)
+dumb_probs = base.predict(exog=finX_const)
+
+
+
+def get_final(model, thresh):
+    #FINAL TRY score
+    pred_fin = model.predict(final_X)
+    fin_probs = model.predict_proba(final_X).T[1]
+    fp = fin_probs > thresh
+    fp = fp.astype(int)
+    bp = dumb_probs > 0.25
+    bp = bp.astype(int)
+
+    print('dmacUT model F1 score: {:.3}'.format(f1_score(final_y, fp)))
+    print(' ')
+    print('Base model F1 score: {:.3}'.format(f1_score(final_yD, bp)))
+    print(' ')
+
+    #fin_probs = model.predict_proba(final_X2).T[1]
+    #Roc_Auc score
+    #print('ROC AUC Score is: {:.3}'.format(roc_auc_score(final_y, fin_probs )))
+
+    tnr, fpr, fnr, tpr = confusion_matrix(final_y, fp).ravel()
+    print('dmacUT model confusion matrix:')
+    print('Pred True ', tpr, fpr)
+    print('Pred False ', fnr, tnr)
+    print(' ')
+
+    btnr, bfpr, bfnr, btpr = confusion_matrix(final_y, bp).ravel()
+    print('base model confusion matrix:')
+    print('Pred True ', btpr, bfpr)
+    print('Pred False ', bfnr, btnr)
+    print(' ')
+
+    tmact = np.array([np.array(final_tms), np.array(final_y)])
+    tmact_df = pd.DataFrame({'Teams':tmact[0],'Finish Top 8':tmact[1]})
+
+    tmprobs = np.array([np.array(final_tms), fin_probs, dumb_probs])
+
+    tmprobs_df = pd.DataFrame({'Teams':tmprobs[0],'dmacUTProbs':tmprobs[1], 'BaseProbs':tmprobs[2]})
+    joined = pd.merge(tmact_df, tmprobs_df, how='left', on='Teams')
+    joined['YR'] = joined.Teams.str[-2:].astype(int)
+    sort_tmprobs = joined.sort_values(['YR','dmacUTProbs'], ascending = False)
+    df19 = sort_tmprobs[sort_tmprobs['YR'] == 19]
+    df18 = sort_tmprobs[sort_tmprobs['YR'] == 18]
+    df17 = sort_tmprobs[sort_tmprobs['YR'] == 17]
+    #return sort_tmprobs
+    print(df19)
+    print(' ')
+    print(df18)
+    print(' ')
+    print(df17)
+
+
+get_final(gb, 0.17)
