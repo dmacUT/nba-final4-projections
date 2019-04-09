@@ -7,20 +7,20 @@
 - Imagine this scenarios:
     - Dallas Mavericks roster going into next season (2019-2020)
         - This is their likely roster:
-        | Starters | Description |
-        | ----------- | ----------- |
-        | Starters | Title |
-        | C | *[Fill with free agent or Backup- Dwight Powell]* |
-        | PF | Kristaps Porzingis |
-        | SF | Luka Doncic|
-        | SG | Tim Hardaway Jr. *[or fill with free agent]* |
-        | PG | *[Fill with free agent or Backup - Jalen Bruson]* |
-        | Starters | Title |
-        | C/PF | Dwight Powell |
-        | C/PF | Maxi Kleber |
-        | SF/SG | Dorian Finney-Smith|
-        | SG/PG | JJ Barea |
-        | PG | Jalen Brunson |
+| Starters | Description |
+| ----------- | ----------- |
+| Starters | Title |
+| C | *[Fill with free agent or Backup- Dwight Powell]* |
+| PF | Kristaps Porzingis |
+| SF | Luka Doncic|
+| SG | Tim Hardaway Jr. *[or fill with free agent]* |
+| PG | *[Fill with free agent or Backup - Jalen Bruson]* |
+| Starters | Title |
+| C/PF | Dwight Powell |
+| C/PF | Maxi Kleber |
+| SF/SG | Dorian Finney-Smith|
+| SG/PG | JJ Barea |
+| PG | Jalen Brunson |
 
 
 
