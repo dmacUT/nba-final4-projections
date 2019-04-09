@@ -7,7 +7,8 @@
 - Imagine this scenarios:
     - Dallas Mavericks roster going into next season (2019-2020)
         - This is their likely roster:
-| Starters | Description |
+
+| Starters | |
 | ----------- | ----------- |
 | Starters | Title |
 | C | *[Fill with free agent or Backup- Dwight Powell]* |
