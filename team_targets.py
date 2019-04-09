@@ -1,7 +1,7 @@
 import pandas as pd 
 
 def get_team_target():
-    target = pd.read_csv('data/TEAMstats - target_hcw19.csv')
+    target = pd.read_csv('data/TEAMstats - target_hcw19_2.csv')
 
     target['TM_x'] = target['TM_x'].str.replace('*', '')
     target['TM_x'] = target['TM_x'] + ' ' + target['YR']
