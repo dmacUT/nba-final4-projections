@@ -18,6 +18,7 @@ team_fin = pd.read_csv('data/5_19_aggdataWS.csv')
 team_cols = list(team_fin.columns.values)
 team_cols.pop(1)
 
+team_base = pd.read_csv('data/5_19_pergame.csv')
 
 
 def bootstrap(arr, iterations=10):
@@ -63,7 +64,7 @@ def bootstrap(arr, iterations=10):
 
     return df_merged
 
-def split_time(df, yr_cut = 14):
+def split_time(df, yr_cut = 18):
     #randlist has a random index for % length of index
     #last3yrs = df.sort_values('YR_x', ascending = False).reset_index()
     #final_test_df = last3yrs.iloc[:(int(len(df) * test_size))]
@@ -78,11 +79,7 @@ time_train, final_test_X, final_test_y = split_time(team_fin)
 tt_shrunk = time_train[['YR_x', 'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
 'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
  'HomeCourt_y', 'HomeCourt_x',
- 'PFD_clustmn',	'PFO_clustmn',
- 'PGD_clustmn',	'PGO_clustmn',
- 'SFD_clustmn',	'SFO_clustmn',
- 'CD_clustmn',	'CO_clustmn',
- 'SGD_clustmn',	'SGO_clustmn',
+ 'CO_SSmn', 'CD_SSmn', 'PFO_SSmn', 'PFD_SSmn', 'PGO_SSmn', 'PGD_SSmn', 'SGO_SSmn', 'SGD_SSmn' , 'SFO_SSmn', 'SFD_SSmn'
  ]]
 
 
@@ -92,52 +89,42 @@ tt_boot = bootstrap(tt_shrunk, iterations=15)
 tt_X = tt_boot[[
 'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
 'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
-#  'HomeCourt_y',
-#  'PFD_clustmn',	'PFO_clustmn',
-#  'PGD_clustmn',	'PGO_clustmn',
-#  'SFD_clustmn',	'SFO_clustmn',
-#  'CD_clustmn',	'CO_clustmn',
-#  'SGD_clustmn',	'SGO_clustmn'
- ]]
+'CO_SSmn', 'CD_SSmn', 'PFO_SSmn', 'PFD_SSmn', 'PGO_SSmn', 'PGD_SSmn', 'SGO_SSmn', 'SGD_SSmn' , 'SFO_SSmn', 'SFD_SSmn']]
+
 tt_y = tt_boot['HomeCourt_x']
 
 tt_Xtest = final_test_X[final_test_X.YR_x < 17][[
     'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
 'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
-#  'HomeCourt_y',
-#  'PFD_clustmn',	'PFO_clustmn',
-#  'PGD_clustmn',	'PGO_clustmn',
-#  'SFD_clustmn',	'SFO_clustmn',
-#  'CD_clustmn',	'CO_clustmn',
-#  'SGD_clustmn',	'SGO_clustmn'
+'CO_SSmn', 'CD_SSmn', 'PFO_SSmn', 'PFD_SSmn', 'PGO_SSmn', 'PGD_SSmn', 'SGO_SSmn', 'SGD_SSmn' , 'SFO_SSmn', 'SFD_SSmn'
  ]]
 tt_ytest = final_test_y[final_test_y.YR_x < 17]['HomeCourt_x']
 
-final_X = final_test_X[final_test_X.YR_x > 16][[
+final_X = final_test_X[final_test_X.YR_x > 18][[
     'PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn','PFsadvotesmn','PFsOWSmn','PFsDWSmn',
 'SFsadvotesmn','SFsOWSmn','SFsDWSmn','Csadvotesmn','CsOWSmn','CsDWSmn','SGsadvotesmn','SGsOWSmn','SGsDWSmn','PGsadvotesmn','PGsOWSmn','PGsDWSmn',
-#  'HomeCourt_y',
-#  'PFD_clustmn',	'PFO_clustmn',
-#  'PGD_clustmn',	'PGO_clustmn',
-#  'SFD_clustmn',	'SFO_clustmn',
-#  'CD_clustmn',	'CO_clustmn',
-#  'SGD_clustmn',	'SGO_clustmn'
+'CO_SSmn', 'CD_SSmn', 'PFO_SSmn', 'PFD_SSmn', 'PGO_SSmn', 'PGD_SSmn', 'SGO_SSmn', 'SGD_SSmn' , 'SFO_SSmn', 'SFD_SSmn'
  ]]
-final_y = final_test_y[final_test_y.YR_x > 16]['HomeCourt_x']
+final_y = final_test_y[final_test_y.YR_x > 18]['HomeCourt_x']
 
-final_tms = final_test_y[final_test_y.YR_x > 16]['TM_x']
+final_tms = final_test_y[final_test_y.YR_x > 18]['TM_x']
 
-#Create data for dumb model
-tt_XD = tt_boot[['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn']]
-tt_yD = tt_boot['HomeCourt_x']
+# Base model data
+team_base = pd.read_csv('data/5_19_pergame.csv')
 
-tt_XtestD = final_test_X[final_test_X.YR_x < 17][['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn', ]]
-tt_ytestD = final_test_y[final_test_y.YR_x < 17]['HomeCourt_x']
+base_train, base_test_X, base_test_y = split_time(team_base)
 
-final_XD = final_test_X[final_test_X.YR_x > 16][['PFsVORPmn', 'PGsVORPmn', 'SFsVORPmn', 'CsVORPmn', 'SGsVORPmn',]]
-final_yD = final_test_y[final_test_y.YR_x > 16]['HomeCourt_x']
+X_train = base_train['PTS_y']
 
-final_tms = final_test_y[final_test_y.YR_x > 16]['TM_x']
+y_train = base_train['HomeCourt_x']
+
+X_final_b = base_test_X[base_test_X.YR_x > 18]['PTS_y']
+
+y_final_b = base_test_y[base_test_y.YR_x > 18]['HomeCourt_x']
+
+base_tms = base_test_y ['TM_x']
+
+
 
 def run_rf_model(Xtr,ytr,Xte,yte, n_est = 500, thresh=0.5):
     rf2 = RandomForestClassifier(bootstrap=True, n_estimators=n_est,
@@ -170,7 +157,7 @@ def run_rf_model(Xtr,ytr,Xte,yte, n_est = 500, thresh=0.5):
     plt.xlabel("False positive rate")
     plt.ylabel("True positive rate")
 
-    rf_model1 = 'rf_model2.sav'
+    rf_model1 = 'rf_model18.sav'
     pickle.dump(rf2, open(rf_model1, 'wb'))
     
 
@@ -208,8 +195,8 @@ def run_gb_model(Xtr,ytr,Xte,yte, lr = 0.1, thresh=0.5):
     plt.xlabel("False positive rate")
     plt.ylabel("True positive rate")
 
-    gb_model1 = 'gb_model2.sav'
-    pickle.dump(gmodel, open(gb_model1, 'wb'))
+    gb_model18 = 'gb_model18.sav'
+    pickle.dump(gmodel, open(gb_model18, 'wb'))
 
 def run_log_reg(Xtr,ytr,Xte,yte):
     #Testing out Logistic Regression
@@ -234,15 +221,16 @@ def run_log_reg(Xtr,ytr,Xte,yte):
 
     print(log.summary())
 
-    base = 'base_model.sav'
+    base = 'log18_model.sav'
     pickle.dump(log, open(base, 'wb'))
 
-gb = get_model('gb_model2.sav')
-base = get_model('base_model.sav')
+# rf2 = get_model('rf_model2.sav')
+# gb2 = get_model('gb_model2.sav')
+ppg = get_model('ppg_model.sav')
 
-finX = final_XD
+finX = X_final_b
 finX_const = add_constant(finX, prepend=True)
-dumb_probs = base.predict(exog=finX_const)
+ppg_probs = ppg.predict(exog=finX_const)
 
 
 
@@ -252,12 +240,12 @@ def get_final(model, thresh):
     fin_probs = model.predict_proba(final_X).T[1]
     fp = fin_probs > thresh
     fp = fp.astype(int)
-    bp = dumb_probs > 0.25
+    bp = ppg_probs > 0.23
     bp = bp.astype(int)
 
     print('dmacUT model F1 score: {:.3}'.format(f1_score(final_y, fp)))
     print(' ')
-    print('Base model F1 score: {:.3}'.format(f1_score(final_yD, bp)))
+    print('Base model F1 score: {:.3}'.format(f1_score(y_final_b, bp)))
     print(' ')
 
     #fin_probs = model.predict_proba(final_X2).T[1]
@@ -270,7 +258,7 @@ def get_final(model, thresh):
     print('Pred False ', fnr, tnr)
     print(' ')
 
-    btnr, bfpr, bfnr, btpr = confusion_matrix(final_y, bp).ravel()
+    btnr, bfpr, bfnr, btpr = confusion_matrix(y_final_b, bp).ravel()
     print('base model confusion matrix:')
     print('Pred True ', btpr, bfpr)
     print('Pred False ', bfnr, btnr)
@@ -279,12 +267,13 @@ def get_final(model, thresh):
     tmact = np.array([np.array(final_tms), np.array(final_y)])
     tmact_df = pd.DataFrame({'Teams':tmact[0],'Finish Top 8':tmact[1]})
 
-    tmprobs = np.array([np.array(final_tms), fin_probs, dumb_probs])
+    tmprobs = np.array([np.array(final_tms), fin_probs, ppg_probs])
 
     tmprobs_df = pd.DataFrame({'Teams':tmprobs[0],'dmacUTProbs':tmprobs[1], 'BaseProbs':tmprobs[2]})
     joined = pd.merge(tmact_df, tmprobs_df, how='left', on='Teams')
     joined['YR'] = joined.Teams.str[-2:].astype(int)
-    sort_tmprobs = joined.sort_values(['YR','dmacUTProbs'], ascending = False)
+    sort_tmprobs = joined.sort_values(['YR','dmacUTProbs'], ascending = False).reset_index()
+    sort_tmprobs = sort_tmprobs.drop('index', axis=1)
     df19 = sort_tmprobs[sort_tmprobs['YR'] == 19]
     df18 = sort_tmprobs[sort_tmprobs['YR'] == 18]
     df17 = sort_tmprobs[sort_tmprobs['YR'] == 17]
@@ -296,4 +285,4 @@ def get_final(model, thresh):
     print(df17)
 
 
-get_final(gb, 0.17)
+#get_final(gbSS, 0.17)

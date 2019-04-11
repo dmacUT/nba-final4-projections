@@ -92,10 +92,10 @@ def get_2yr_mean(df):
 
     col_means = ['sPER', 'sTS%', 's3PAr', 'sFTr', 'sORB%',
            'sDRB%', 'sTRB%', 'sAST%', 'sSTL%', 'sBLK%', 'sTOV%', 'sUSG%', 'sOWS', 'sDWS',
-           'sWS', 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP','sMPG', 'sadvotes', 'O_cluster', 'D_cluster','D_clust','O_clust']
+           'sWS', 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP','sMPG', 'sadvotes', 'O_cluster', 'D_cluster','D_clust','O_clust','O_SS', 'D_SS']
     cols = ['sPER_y', 'sTS%_y', 's3PAr_y', 'sFTr_y','sORB%_y','sDRB%_y','sTRB%_y','sAST%_y', 'sSTL%_y', 'sBLK%_y', 'sTOV%_y',
        'sUSG%_y', 'sOWS_y', 'sDWS_y', 'sWS_y', 'sWS/48_y', 'sOBPM_y', 'sDBPM_y', 'sBPM_y', 'sVORP_y', 'sMPG_y',
-       'sadvotes_y','O_cluster_y', 'D_cluster_y', 'D_clust_y', 'O_clust_y']
+       'sadvotes_y','O_cluster_y', 'D_cluster_y', 'D_clust_y', 'O_clust_y','O_SS_y', 'D_SS_y']
 
     #yr_seven_df = df[df.YR_x == 7][['Player','G_x', 'Pos_x', 'Age_x','TM_x','YR_x','MP_x', 'AgeMulti_x']]
     yr_six_df = df[df.YR_x == 6][['Player','G_x', 'Pos_x', 'Age_x','TM_x','YR_x','MP_x', 'AgeMulti_x']]
@@ -211,10 +211,20 @@ p_sca = dfs
 p_sca['O_clust'] = (p_sca['O_clust']**1.5)/6
 p_sca['D_clust'] = (p_sca['D_clust']**1.5)/2.125
 
+omean = list(p_sca.groupby('O_clust')['OWS'].mean())
+dmean = list(p_sca.groupby('D_clust')['DWS'].mean())
+
+omeandict = dict(zip(list(p_sca['O_clust'].unique()), omean))
+dmeandict = dict(zip(list(p_sca['D_clust'].unique()), dmean))
+
+#Creating new 'Superstar' metric
+p_sca['O_SS'] = p_sca['O_clust'].map(omeandict)
+p_sca['D_SS'] = p_sca['D_clust'].map(dmeandict)
+
 #Setup player data df to add the prior 2 years of the players' stats
 p2yr = p_sca[['Player','Age','Pos','G','MP','TM','YR','YRprior','2YRprior','AgeMulti', 'sPER', 'sTS%', 's3PAr', 'sFTr', 'sORB%',
            'sDRB%', 'sTRB%', 'sAST%', 'sSTL%', 'sBLK%', 'sTOV%', 'sUSG%', 'sOWS', 'sDWS',
-           'sWS', 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP','sMPG', 'sadvotes', 'O_cluster', 'D_cluster','D_clust','O_clust']]
+           'sWS', 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP','sMPG', 'sadvotes', 'O_cluster', 'D_cluster','D_clust','O_clust', 'O_SS', 'D_SS']]
 
 #Create new df of player data with 2 years
 p2 = add_2yrs_prior(p2yr)
@@ -223,11 +233,11 @@ p2 = add_2yrs_prior(p2yr)
 lastyr= ['MP_y', 'YR_y', 'YRprior_y', '2YRprior_y', 'AgeMulti_y', 'sPER_y', 'sTS%_y', 's3PAr_y','sFTr_y',
  'sORB%_y', 'sDRB%_y', 'sTRB%_y', 'sAST%_y', 'sSTL%_y', 'sBLK%_y', 'sTOV%_y', 'sUSG%_y', 'sOWS_y', 'sDWS_y',
  'sWS_y', 'sWS/48_y', 'sOBPM_y', 'sDBPM_y', 'sBPM_y', 'sVORP_y', 'sMPG_y', 'sadvotes_y', 'O_cluster_y',
- 'D_cluster_y', 'D_clust_y', 'O_clust_y']
+ 'D_cluster_y', 'D_clust_y', 'O_clust_y', 'O_SS_y', 'D_SS_y']
 
 twoyrsago = ['MP', 'YR', 'YRprior', '2YRprior', 'AgeMulti', 'sPER', 'sTS%', 's3PAr', 'sFTr',
  'sORB%', 'sDRB%', 'sTRB%', 'sAST%', 'sSTL%', 'sBLK%', 'sTOV%', 'sUSG%', 'sOWS', 'sDWS', 'sWS',
- 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP', 'sMPG', 'sadvotes', 'O_cluster', 'D_cluster', 'D_clust', 'O_clust']
+ 'sWS/48', 'sOBPM', 'sDBPM', 'sBPM', 'sVORP', 'sMPG', 'sadvotes', 'O_cluster', 'D_cluster', 'D_clust', 'O_clust','O_SS', 'D_SS']
 
 #Copy of df with 2 years data
 p3 = p2
@@ -280,6 +290,8 @@ stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
  'PFD_clustermn',
  'PFD_clustmn',
  'PFO_clustmn',
+ 'PFO_SSmn',
+ 'PFD_SSmn',
  'PGsPERmn',
  'PGsTS%mn',
  'PGs3PArmn',
@@ -306,6 +318,8 @@ stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
  'PGD_clustermn',
  'PGD_clustmn',
  'PGO_clustmn',
+ 'PGO_SSmn',
+ 'PGD_SSmn',
  'SFsPERmn',
  'SFsTS%mn',
  'SFs3PArmn',
@@ -332,6 +346,8 @@ stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
  'SFD_clustermn',
  'SFD_clustmn',
  'SFO_clustmn',
+ 'SFO_SSmn',
+ 'SFD_SSmn',
  'SGsPERmn',
  'SGsTS%mn',
  'SGs3PArmn',
@@ -358,6 +374,8 @@ stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
  'SGD_clustermn',
  'SGD_clustmn',
  'SGO_clustmn',
+ 'SGO_SSmn',
+ 'SGD_SSmn',
  'CsPERmn',
  'CsTS%mn',
  'Cs3PArmn',
@@ -384,6 +402,8 @@ stats75 = p2m12.groupby(['TM_x', 'Pos_x'])[['MP_x',
  'CD_clustermn',
  'CD_clustmn',
  'CO_clustmn',
+ 'CO_SSmn',
+ 'CD_SSmn',
  'MPGmean',]].quantile(.75)
 fin_stats = stats75.groupby('TM_x',).max().reset_index()
 p12 = p2m12.groupby('TM_x').mean().reset_index()
@@ -405,5 +425,6 @@ team_fin = team_df_fin.dropna().reset_index()
 
 #Create csv of final team data
 team_fin.to_csv('data/5_19_aggdataWS.csv', index=False)
+
 
 print('done loading')
