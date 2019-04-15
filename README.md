@@ -3,14 +3,12 @@
 **Goal:** Predict the probability of an NBA team finishing the regular season in the top 8 (of 30) teams based on their players.
 
 
-**Why top 8?** Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.  <img align="right" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/top8.png">
+<img align="right" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/top8v2.png">
+**Why top 8?** Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.  
 
+**Application:** Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
 
-**Why:** Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
-
-Two different players may seem like they could bring the same level of improvement to the team based on certain stats or what salaries they demand, but obviously they likely have some differing skill sets.   
-
-How each players' skill sets fits with the team is not easy to measure, but alas, I've made an attempt to measure it.
+**Thinking beyond basketball:** The data analysis and aggregation, machine learning, and findings are relatable to several questions outside of sport and basketball in particular. A few high ways are resource allocation (marketing mix), feature prioritization (product development), and customer segmentation (Lifetime Customer Value or bulding personas). 
 
 **Approach:**
 
@@ -18,9 +16,6 @@ How each players' skill sets fits with the team is not easy to measure, but alas
     *What are "advanced stats"?* Think aggregated and normalized stats. Many a smart people have tried to add better measurables to the NBA game.
         - One brief example. **VORP** (No, not an alien overlord.) Victories Over Replacement Player. 
         Without getting into the weeds, it basically attempts to measure how many wins a given player contributed to his team over an average player
-
-
-
 
 2. Examine the stats, see which stats seem to correlate best to player performance and team wins. (AKA **EDA**)
 
@@ -40,26 +35,10 @@ How each players' skill sets fits with the team is not easy to measure, but alas
         - Creating my own version of Offensive/Defensive Impact scores
         - Trying to add player tracking data such as touches per game (not enough data available)
 
+**Results and takeaways:**
 
 
 
-
-
-
-| Starters | |
-| ----------- | ----------- |
-| Starters | Title |
-| C | *[Fill with free agent or Backup- Dwight Powell]* |
-| PF | Kristaps Porzingis |
-| SF | Luka Doncic|
-| SG | Tim Hardaway Jr. *[or fill with free agent]* |
-| PG | *[Fill with free agent or Backup - Jalen Bruson]* |
-| Starters | Title |
-| C/PF | Dwight Powell |
-| C/PF | Maxi Kleber |
-| SF/SG | Dorian Finney-Smith|
-| SG/PG | JJ Barea |
-| PG | Jalen Brunson |
 
 
 
