@@ -1,8 +1,8 @@
-# nba-final4-projections
+# Predicting final NBA team standings solely from player stats
 
 **Goal:** Predict the probability of an NBA team finishing the regular season in the top 8 (of 30) teams based on their players.
 
-- Why top 8? Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season. 
+- **Why top 8? Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.** 
 
 **Why:** Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
 
