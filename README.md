@@ -36,7 +36,7 @@
 
 **Results and takeaways:**
 
-<img align="center" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/results19.png">  
+<img align="center" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/Results19.png">  
 
 
 
