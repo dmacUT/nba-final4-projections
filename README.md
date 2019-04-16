@@ -1,13 +1,16 @@
 # Predicting NBA team standings from player stats
 
-**Goal:** Predict the probability of an NBA team finishing the regular season in the top 8 (of 30) teams based on their players. **Why top 8?** Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.
+**Goal:** 
+Predict the probability of an NBA team finishing the regular season in the top 8 (of 30) teams based on their players. **Why top 8?** Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.
 
 
 <img align="right" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/top8v2.png">  
 
-**Application:** Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
+**Application:** 
+Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
 
-**Thinking beyond basketball:** The data analysis and aggregation, machine learning, and findings are relatable to several questions outside of sport and basketball in particular. A few high ways are resource allocation (marketing mix), feature prioritization (product development), and customer segmentation (Lifetime Customer Value or bulding personas). 
+**Thinking beyond basketball:** 
+The data analysis and aggregation, machine learning, and findings are relatable to several questions outside of sport and basketball in particular. A few high ways are resource allocation (marketing mix), feature prioritization (product development), and customer segmentation (Lifetime Customer Value or bulding personas). 
 
 **Approach:**
 
@@ -56,7 +59,7 @@ While the results are exciting, they come with caveats. When the player's on a t
 3. It's hard to predict a big leap in player improvement or worsening from year to year
     - Some players can play at a consistent level into their mid-thirties while other's really start falling off in their early thirties. Some players go from "developing" to "arrived" in year 2, year 4, or (most likely) never.
 
-    
+
 
 **Next steps:**
 - Diving deeper into predicing when players will make a big leap or big drop off, and taking into account pre-NBA data will be in the v2 to better account for takeaways 2 and especially 3.
