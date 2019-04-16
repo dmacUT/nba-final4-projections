@@ -1,19 +1,18 @@
 # Predicting NBA team standings from player stats
 
-**Goal:** 
+**Goal:** <br>
 Predict the probability of an NBA team finishing the regular season in the top 8 (of 30) teams based on their players. **Why top 8?** Every team that has won a championship in the last 20 years has finished in the top 8 during the regular season.
 
 
 <img align="right" src="https://github.com/dmacUT/nba-final4-projections/blob/master/images/top8v2.png">  
 
-**Application:** 
+**Application:** <br>
 Every year, NBA teams make decisions in free agency on what players to add to their team. While there's many thing to weight when making such a decision, (including whether or not the player wants to join the team), it would be very helpful to understand which players would give the team a higher probability of making it to the top 8. 
 
-**Thinking beyond basketball:** 
+**Thinking beyond basketball:** <br>
 The data analysis and aggregation, machine learning, and findings are relatable to several questions outside of sport and basketball in particular. A few high ways are resource allocation (marketing mix), feature prioritization (product development), and customer segmentation (Lifetime Customer Value or bulding personas). 
 
-**Approach:**
-
+**Approach:** <br>
 1. Get advanced NBA player stats for the last 12+ years.
     *What are "advanced stats"?* Think aggregated and normalized stats. Many a smart people have tried to add better measurables to the NBA game.
         - One brief example. **VORP** (No, not an alien overlord.) Victories Over Replacement Player. 
@@ -37,11 +36,11 @@ The data analysis and aggregation, machine learning, and findings are relatable 
         - Creating my own version of Offensive/Defensive Impact scores
         - Trying to add player tracking data such as touches per game (not enough data available)
 
-**The Final Model:**
+**The Final Model:** <br>
     - My final model ended up being a random forest model, which just beat out a gradient boosting model. 
     - It took 30 total features, or 6 stats per the traditional 5 NBA positions (PG, SG, SF, PF, C) with a weighted average from the prior two seasons.
 
-**Results:**
+**Results:** <br>
 Initially, I trained the model on '05-'16 seasons, and tested in on '17-'19 seasons. This resulted in a .677 F1 score. Essentially, if the model predicted the 2/3 of top 8 teams over 3 seasons.
 
 I retrained the model on '05-'18 data to only predict the '19 season, and the results are below in comparison with Nate Silver's FiveThirtyEight's pre-season predicitons.
@@ -50,8 +49,8 @@ I retrained the model on '05-'18 data to only predict the '19 season, and the re
 
 While the results are exciting, they come with caveats. When the player's on a team don't change from year to year, the team tends to perform to the same level as the did th prior year. 
 
-**Takeaways:**
-**My 3 main basketball takeaways are:**
+**Takeaways:** <br>
+**My 3 main basketball takeaways are:** <br>
 1. "Defense wins championships!" as the old adage goes
     - (See graphic below)
 2. The top and the bottom are more predictable than the middle
@@ -61,7 +60,7 @@ While the results are exciting, they come with caveats. When the player's on a t
 
 
 
-**Next steps:**
+**Next steps:** <br>
 - Diving deeper into predicing when players will make a big leap or big drop off, and taking into account pre-NBA data will be in the v2 to better account for takeaways 2 and especially 3.
 
 **Thinking beyond basketball:**
