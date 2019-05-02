@@ -63,7 +63,6 @@ While the results are exciting, they come with caveats. When the player's on a t
 **Next steps:** <br>
 - Diving deeper into predicing when players will make a big leap or big drop off, and taking into account pre-NBA data will be in the v2 to better account for takeaways 2 and especially 3.
 
-**Thinking beyond basketball:**
 
 
 
